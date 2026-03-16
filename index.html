@@ -102,7 +102,6 @@
         }
     </style>
 </head>
-<!-- FIX MOBILE SCROLL: Menggunakan md:h-screen dan md:overflow-hidden agar di HP scroll alami aktif -->
 <body class="bg-gray-100 text-gray-800 antialiased font-sans md:h-screen flex flex-col md:overflow-hidden">
 
     <!-- Container Utama -->
@@ -113,7 +112,7 @@
     <!-- Script Utama -->
     <script>
         // ==========================================
-        // PWA SETUP (Sistem Install Aplikasi Mandiri)
+        // PWA SETUP
         // ==========================================
         const pwaIcon = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e40af'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E";
         
@@ -140,7 +139,7 @@
         if ('serviceWorker' in navigator) {
             const swCode = "self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => self.clients.claim()); self.addEventListener('fetch', e => {});";
             const swBlob = new Blob([swCode], { type: 'text/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA belum aktif sepenuhnya di mode lokal', err));
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA belum aktif', err));
         }
 
         // ==========================================
@@ -148,20 +147,27 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxp1ROOvNSFHp0SrcekjNx9IrddSfVxgzaf53aNjRa48nMye9u4JA7_ugGNwQ2q7L2d/exec"; 
         const defaultAdmin = { id: '1', nama: 'Admin', nip: 'admin', jabatan: 'Administrator', role: 'admin', password: 'admin' };
 
-        function getLocalYYYYMMDD(dateObj = new Date()) {
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const d = String(dateObj.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
+        // ==========================================
+        // PERBAIKAN ZONA WAKTU (LOCK KE WITA - ASIA/MAKASSAR)
+        // ==========================================
+        
+        // Fungsi mengambil tanggal saat ini, tapi dipaksa zona waktu WITA
+        function getSchoolDateString(dateObj = new Date()) {
+            const tzStr = dateObj.toLocaleString('en-US', { timeZone: 'Asia/Makassar', year: 'numeric', month: '2-digit', day: '2-digit' });
+            const [m, d, y] = tzStr.split('/');
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+
+        // Fungsi mengambil jam saat ini, tapi dipaksa zona waktu WITA
+        function getSchoolTimeString(dateObj = new Date()) {
+            return dateObj.toLocaleTimeString('en-GB', { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit' });
         }
 
         function normalizeTime(timeVal) {
             if (!timeVal) return '';
             if (typeof timeVal === 'string' && timeVal.includes('T')) {
                 const d = new Date(timeVal);
-                const h = String(d.getHours()).padStart(2, '0');
-                const m = String(d.getMinutes()).padStart(2, '0');
-                return `${h}:${m}`;
+                return getSchoolTimeString(d);
             }
             if (typeof timeVal === 'string' && timeVal.includes(':')) {
                 return timeVal.substring(0, 5);
@@ -174,7 +180,7 @@
             attendanceData: [],
             currentUser: null,
             currentView: 'loading',
-            selectedReportDate: getLocalYYYYMMDD(),
+            selectedReportDate: getSchoolDateString(), 
             modalAbsenType: null,
             kepsekName: localStorage.getItem('kepsekName') || 'Masukkan Nama Kepsek',
             kepsekNip: localStorage.getItem('kepsekNip') || 'NIP. .............................'
@@ -197,9 +203,10 @@
                     AppState.users = data.users.length > 0 ? data.users : [defaultAdmin];
                     const rawAttendance = data.attendance || [];
                     AppState.attendanceData = rawAttendance.map(record => {
+                        // Memastikan tanggal server dikonversi murni menggunakan referensi WITA
                         if (record.date && typeof record.date === 'string' && record.date.includes('T')) {
                             const d = new Date(record.date);
-                            record.date = getLocalYYYYMMDD(d);
+                            record.date = getSchoolDateString(d);
                         }
                         if (record.userId !== 'GLOBAL_NOTE') {
                             record.timeIn = normalizeTime(record.timeIn);
@@ -233,16 +240,10 @@
             }
         }
 
-        function getCurrentTimeString() {
-            const d = new Date();
-            const h = String(d.getHours()).padStart(2, '0');
-            const m = String(d.getMinutes()).padStart(2, '0');
-            return `${h}:${m}`; 
-        }
-
+        // Format tanggal untuk cetakan (Dipaksa mengabaikan perbedaan zona waktu)
         function formatDateID(dateStr, includeWeekday = false) {
             const [y, m, d] = dateStr.split('-');
-            const dateObj = new Date(y, m - 1, d); 
+            const dateObj = new Date(y, m - 1, d, 12, 0, 0); // Diset jam 12 siang agar tidak terpengaruh pergeseran waktu
             const options = { day: '2-digit', month: 'long', year: 'numeric' };
             if(includeWeekday) options.weekday = 'long';
             return dateObj.toLocaleDateString('id-ID', options);
@@ -250,14 +251,17 @@
 
         function getWorkdaysOfWeek(dateStr) {
             const [y, m, d] = dateStr.split('-');
-            const curr = new Date(y, m - 1, d); 
+            const curr = new Date(y, m - 1, d, 12, 0, 0); 
             const day = curr.getDay(); 
             const diff = curr.getDate() - day + (day === 0 ? -6 : 1); 
             
             const dates = [];
             for(let i=0; i<5; i++) {
-                const workDay = new Date(y, m - 1, diff + i);
-                dates.push(getLocalYYYYMMDD(workDay));
+                const workDay = new Date(y, m - 1, diff + i, 12, 0, 0);
+                const wy = workDay.getFullYear();
+                const wm = String(workDay.getMonth() + 1).padStart(2, '0');
+                const wd = String(workDay.getDate()).padStart(2, '0');
+                dates.push(`${wy}-${wm}-${wd}`);
             }
             return dates;
         }
@@ -455,7 +459,7 @@
         // KOMPONEN: LOGIN
         // ==========================================
         function renderLogin() {
-            const todayStr = getLocalYYYYMMDD();
+            const todayStr = getSchoolDateString();
             const todaysAttendanceList = AppState.attendanceData
                 .filter(a => a.date === todayStr && a.timeIn && a.userId !== 'GLOBAL_NOTE') 
                 .map(a => {
@@ -502,7 +506,7 @@
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
                                 <i data-lucide="users" class="mr-3 text-blue-600 w-8 h-8"></i> Daftar Hadir PTK
                             </h2>
-                            <p class="text-gray-500 mt-1">Status Check-Clock Hari Ini</p>
+                            <p class="text-gray-500 mt-1">Status Check-Clock Hari Ini (WITA)</p>
                         </div>
                         <div class="text-left sm:text-right bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 w-full sm:w-auto">
                             <p id="rt-date-login" class="text-sm font-semibold text-blue-800"></p>
@@ -548,7 +552,7 @@
         // ==========================================
         function renderDashboardGuru() {
             const user = AppState.currentUser;
-            const todayStr = getLocalYYYYMMDD();
+            const todayStr = getSchoolDateString();
             const todayRecord = AppState.attendanceData.find(a => String(a.userId) === String(user.id) && a.date === todayStr);
             
             const isAbsenPagiDone = todayRecord && todayRecord.timeIn;
@@ -646,7 +650,7 @@
         }
 
         // ==========================================
-        // GANTI PASSWORD LOGIC (FITUR BARU)
+        // GANTI PASSWORD LOGIC 
         // ==========================================
         function openChangePasswordModal() {
             const container = document.getElementById('password-modal-container');
@@ -708,16 +712,13 @@
                 return;
             }
 
-            // Update State Lokal
             AppState.currentUser.password = newPass;
             const userIndex = AppState.users.findIndex(u => String(u.id) === String(AppState.currentUser.id));
             if(userIndex !== -1) {
                 AppState.users[userIndex].password = newPass;
             }
 
-            // Kirim ke Sheet Backend
             sendToSheet({ action: 'changePassword', id: AppState.currentUser.id, newPassword: newPass });
-
             alert('Password berhasil diubah!');
             closeChangePasswordModal();
         }
@@ -812,8 +813,8 @@
 
         function processAbsensi(signatureDataUrl) {
             const user = AppState.currentUser;
-            const timeNow = getCurrentTimeString();
-            const todayStr = getLocalYYYYMMDD();
+            const timeNow = getSchoolTimeString();
+            const todayStr = getSchoolDateString();
             
             if (AppState.modalAbsenType === 'pagi') {
                 const newRecord = { id: Date.now().toString(), userId: user.id, date: todayStr, timeIn: timeNow, signatureIn: signatureDataUrl, timeOut: '', signatureOut: '' };
@@ -1071,8 +1072,13 @@
         function startRealtimeClock() {
             setInterval(() => {
                 const now = new Date();
-                const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const timeStr = now.toLocaleTimeString('id-ID');
+                
+                // Gunakan format WITA untuk Tampilan Jam Digital juga!
+                const optionsDate = { timeZone: 'Asia/Makassar', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+                
+                const optionsTime = { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                const timeStr = now.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':');
                 
                 const lgDate = document.getElementById('rt-date-login');
                 const lgTime = document.getElementById('rt-time-login');
