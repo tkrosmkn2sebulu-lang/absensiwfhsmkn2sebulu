@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -13,37 +14,121 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
+
     <style>
         /* CSS Khusus Cetak (Print) - A4 Landscape */
         @media print {
-            @page { size: A4 landscape; margin: 10mm; }
-            html, body, #app, .h-screen, .h-full, .flex-1, .overflow-hidden, .overflow-y-auto, .overflow-x-auto {
-                height: auto !important; min-height: auto !important; overflow: visible !important; display: block !important;
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
             }
-            body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; background-color: white; }
-            .print-hidden { display: none !important; }
-            .print-p-0 { padding: 0 !important; }
-            .print-border-none { border: none !important; box-shadow: none !important; }
-            .print-overflow-visible { overflow: visible !important; width: auto !important; display: block !important; }
-            ::-webkit-scrollbar { display: none !important; }
-            table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto !important; }
-            thead { display: table-header-group !important; }
-            tr { page-break-inside: avoid !important; break-inside: avoid !important; }
-            th, td { border: 1px solid #000 !important; padding: 10px 6px !important; font-size: 11px !important; color: #000 !important; }
-            img { display: block !important; }
-            .print-logo { max-height: 80px !important; } 
-            .sticky-col { position: static !important; }
-            .print-show-flex { display: flex !important; }
+
+            html,
+            body,
+            #app,
+            .h-screen,
+            .h-full,
+            .flex-1,
+            .overflow-hidden,
+            .overflow-y-auto,
+            .overflow-x-auto {
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            body,
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background-color: white;
+            }
+
+            .print-hidden {
+                display: none !important;
+            }
+
+            .print-p-0 {
+                padding: 0 !important;
+            }
+
+            .print-border-none {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .print-overflow-visible {
+                overflow: visible !important;
+                width: auto !important;
+                display: block !important;
+            }
+
+            ::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+                page-break-inside: auto !important;
+            }
+
+            thead {
+                display: table-header-group !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            th,
+            td {
+                border: 1px solid #000 !important;
+                padding: 10px 6px !important;
+                font-size: 11px !important;
+                color: #000 !important;
+            }
+
+            img {
+                display: block !important;
+            }
+
+            .print-logo {
+                max-height: 80px !important;
+            }
+
+            .sticky-col {
+                position: static !important;
+            }
+
+            .print-show-flex {
+                display: flex !important;
+            }
         }
 
         .loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #1e40af; border-radius: 50%;
-            width: 40px; height: 40px; animation: spin 1s linear infinite;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e40af;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 text-gray-800 antialiased font-sans md:h-screen flex flex-col md:overflow-hidden">
 
     <div id="app" class="flex-1 w-full flex flex-col md:flex-row min-h-screen md:min-h-0 md:h-full"></div>
@@ -51,7 +136,7 @@
     <script>
         // ==========================================
         // === PENTING: PASTE URL WEB APP GOOGLE SCRIPT ANDA DI SINI ===
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxp1ROOvNSFHp0SrcekjNx9IrddSfVxgzaf53aNjRa48nMye9u4JA7_ugGNwQ2q7L2d/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxp1ROOvNSFHp0SrcekjNx9IrddSfVxgzaf53aNjRa48nMye9u4JA7_ugGNwQ2q7L2d/exec";
         const defaultAdmin = { id: '1', nama: 'Administrator', nip: 'admin', jabatan: 'Administrator', role: 'admin', password: 'admin' };
 
         // HELPER FUNGSI WAKTU WITA
@@ -60,8 +145,8 @@
                 const tzStr = dateObj.toLocaleString('en-US', { timeZone: 'Asia/Makassar', year: 'numeric', month: '2-digit', day: '2-digit' });
                 const [m, d, y] = tzStr.split('/');
                 return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-            } catch(e) {
-                return getLocalYYYYMMDD(new Date()); // Fallback jika browser tidak support timezone
+            } catch (e) {
+                return getLocalYYYYMMDD(new Date());
             }
         }
 
@@ -85,7 +170,7 @@
         }
 
         function getLocalYYYYMMDD(dateObj = new Date()) {
-            if(isNaN(dateObj.getTime())) dateObj = new Date();
+            if (isNaN(dateObj.getTime())) dateObj = new Date();
             const y = dateObj.getFullYear();
             const m = String(dateObj.getMonth() + 1).padStart(2, '0');
             const d = String(dateObj.getDate()).padStart(2, '0');
@@ -98,8 +183,8 @@
             attendanceData: [],
             currentUser: null,
             currentView: 'loading',
-            selectedReportDate: getSchoolDateString(), 
-            reportFilter: 'Semua', // State untuk filter ASN / Non-ASN
+            selectedReportDate: getSchoolDateString(),
+            reportFilter: 'Semua',
             modalAbsenType: null,
             kepsekName: localStorage.getItem('kepsekName') || 'Masukkan Nama Kepsek',
             kepsekNip: localStorage.getItem('kepsekNip') || 'NIP. .............................',
@@ -110,7 +195,7 @@
 
         // INITIALIZATION
         async function initApp() {
-            render(); 
+            render();
             if (!SCRIPT_URL || SCRIPT_URL === "ISI_DENGAN_URL_WEB_APP_ANDA_DISINI") {
                 AppState.users = [defaultAdmin]; AppState.currentView = 'login'; render(); return;
             }
@@ -118,7 +203,7 @@
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=read`);
                 const data = await response.json();
-                if(data.success) {
+                if (data.success) {
                     AppState.users = data.users.length > 0 ? data.users : [defaultAdmin];
                     const rawAttendance = data.attendance || [];
                     AppState.attendanceData = rawAttendance.map(record => {
@@ -133,20 +218,19 @@
                 } else {
                     AppState.users = [defaultAdmin];
                 }
-            } catch(err) {
-                console.error("Gagal mengambil data:", err); AppState.users = [defaultAdmin]; 
+            } catch (err) {
+                console.error("Gagal mengambil data:", err); AppState.users = [defaultAdmin];
             }
-            
+
             AppState.currentView = 'login';
             render(); startRealtimeClock();
         }
 
         async function sendToSheet(payload) {
             if (!SCRIPT_URL || SCRIPT_URL === "ISI_DENGAN_URL_WEB_APP_ANDA_DISINI") return;
-            try { await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); } catch(err) { console.error("Error Sheet:", err); }
+            try { await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }); } catch (err) { console.error("Error Sheet:", err); }
         }
 
-        // FUNGSI NAVIGASI & LOGIN
         function handleLogin(event) {
             event.preventDefault();
             const nipInput = document.getElementById('login-nip').value;
@@ -161,7 +245,6 @@
         function handleLogout() { AppState.currentUser = null; AppState.currentView = 'login'; render(); }
         function changeView(viewName) { AppState.currentView = viewName; render(); }
 
-        // FUNGSI PENGATURAN (SETTINGS)
         function handleSaveSettings(e) {
             e.preventDefault();
             const name = document.getElementById('set-school-name').value;
@@ -173,7 +256,7 @@
 
             if (logoFile) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     AppState.schoolLogo = event.target.result;
                     localStorage.setItem('schoolLogo', event.target.result);
                     alert('Pengaturan Sekolah berhasil disimpan!'); render();
@@ -196,12 +279,11 @@
                         <div class="loader mb-4"></div><h2 class="text-xl font-bold">Menghubungkan ke Database...</h2>
                         <p class="text-sm text-gray-500 mt-2">Sinkronisasi dengan Google Sheets</p>
                     </div>`;
-            } 
+            }
             else if (AppState.currentView === 'login') {
                 html = renderLogin();
-            } 
+            }
             else {
-                // RENDER SIDEBAR
                 html = `
                     <div class="bg-blue-800 text-white w-full md:w-64 flex-shrink-0 print-hidden flex flex-col md:h-full md:overflow-y-auto">
                         <div class="p-4 bg-blue-900 shadow-md">
@@ -219,17 +301,17 @@
 
                             <nav class="space-y-2">
                                 ${AppState.currentUser.role === 'guru' ? `
-                                    <button onclick="changeView('dashboard_guru')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'dashboard_guru' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Dashboard</span></button>
+                                    <button type="button" onclick="changeView('dashboard_guru')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'dashboard_guru' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Dashboard</span></button>
                                 ` : `
-                                    <button onclick="changeView('admin_guru')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_guru' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="users" class="w-5 h-5"></i><span>Manajemen Pengguna</span></button>
-                                    <button onclick="changeView('admin_laporan')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_laporan' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="file-text" class="w-5 h-5"></i><span>Laporan Mingguan</span></button>
-                                    <button onclick="changeView('admin_settings')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_settings' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="settings" class="w-5 h-5"></i><span>Pengaturan</span></button>
+                                    <button type="button" onclick="changeView('admin_guru')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_guru' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="users" class="w-5 h-5"></i><span>Manajemen Pengguna</span></button>
+                                    <button type="button" onclick="changeView('admin_laporan')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_laporan' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="file-text" class="w-5 h-5"></i><span>Laporan Mingguan</span></button>
+                                    <button type="button" onclick="changeView('admin_settings')" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${AppState.currentView === 'admin_settings' ? 'bg-blue-700' : 'hover:bg-blue-700/50'}"><i data-lucide="settings" class="w-5 h-5"></i><span>Pengaturan</span></button>
                                 `}
                             </nav>
                         </div>
 
                         <div class="p-4 bg-blue-900 mt-auto">
-                            <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition"><i data-lucide="log-out" class="w-4 h-4"></i><span>Logout</span></button>
+                            <button type="button" onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition"><i data-lucide="log-out" class="w-4 h-4"></i><span>Logout</span></button>
                         </div>
                     </div>
 
@@ -293,13 +375,13 @@
         function renderLogin() {
             const todayStr = getSchoolDateString();
             const todaysAttendanceList = AppState.attendanceData
-                .filter(a => a.date === todayStr && a.timeIn && a.userId !== 'GLOBAL_NOTE') 
+                .filter(a => a.date === todayStr && a.timeIn && a.userId !== 'GLOBAL_NOTE')
                 .map(a => { const u = AppState.users.find(user => String(user.id) === String(a.userId)); return { ...a, nama: u ? u.nama : 'Unknown', jabatan: u ? u.jabatan : '-' }; })
                 .reverse();
 
             const todayNote = AppState.attendanceData.slice().reverse().find(a => a.date === todayStr && a.userId === 'GLOBAL_NOTE');
             let tableRows = '';
-            
+
             if (todayNote && todayNote.timeIn.trim() !== '') {
                 tableRows = `<tr><td colSpan="4" class="px-6 py-16 text-center text-red-500 bg-red-50 font-bold text-xl">Keterangan Hari Ini: ${todayNote.timeIn}</td></tr>`;
             } else if (todaysAttendanceList.length === 0) {
@@ -381,7 +463,7 @@
                 <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col md:flex-row items-center justify-between border-l-4 border-blue-600">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">Selamat datang, ${user.nama}</h2><p class="text-gray-500">${user.jabatan} | ${user.nip}</p>
-                        <button onclick="openChangePasswordModal()" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition w-max"><i data-lucide="key" class="w-4 h-4 mr-2"></i> Ganti Password</button>
+                        <button type="button" onclick="openChangePasswordModal()" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition w-max"><i data-lucide="key" class="w-4 h-4 mr-2"></i> Ganti Password</button>
                     </div>
                     <div class="mt-4 md:mt-0 text-center bg-blue-50 px-6 py-3 rounded-lg border border-blue-100">
                         <p id="rt-date-guru" class="text-sm text-blue-600 font-semibold mb-1"></p><p id="rt-time-guru" class="text-3xl font-mono font-bold text-blue-800"></p>
@@ -394,7 +476,7 @@
                             <h3 class="text-lg font-bold text-gray-800 flex items-center"><i data-lucide="clock" class="mr-2 text-blue-500 w-5 h-5"></i> Absen Pagi (Datang)</h3>
                             ${isAbsenPagiDone ? `<i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i>` : `<i data-lucide="x-circle" class="text-gray-300 w-5 h-5"></i>`}
                         </div>
-                        ${isAbsenPagiDone ? `<div class="text-center py-4"><p class="text-green-700 font-medium mb-2">Tercatat pada: ${todayRecord.timeIn}</p><img src="${todayRecord.signatureIn}" alt="TTD Pagi" class="h-16 mx-auto bg-white border rounded p-1" /></div>` : `<button onclick="openSignatureModal('pagi')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center"><i data-lucide="pen-tool" class="mr-2 w-4 h-4"></i> Lakukan Absen Pagi</button>`}
+                        ${isAbsenPagiDone ? `<div class="text-center py-4"><p class="text-green-700 font-medium mb-2">Tercatat pada: ${todayRecord.timeIn}</p><img src="${todayRecord.signatureIn}" alt="TTD Pagi" class="h-16 mx-auto bg-white border rounded p-1" /></div>` : `<button type="button" onclick="openSignatureModal('pagi')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center"><i data-lucide="pen-tool" class="mr-2 w-4 h-4"></i> Lakukan Absen Pagi</button>`}
                     </div>
 
                     <div class="rounded-xl shadow-sm p-6 border ${isAbsenSoreDone ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}">
@@ -402,7 +484,7 @@
                             <h3 class="text-lg font-bold text-gray-800 flex items-center"><i data-lucide="log-out" class="mr-2 text-orange-500 w-5 h-5"></i> Absen Sore (Pulang)</h3>
                             ${isAbsenSoreDone ? `<i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i>` : `<i data-lucide="x-circle" class="text-gray-300 w-5 h-5"></i>`}
                         </div>
-                        ${isAbsenSoreDone ? `<div class="text-center py-4"><p class="text-green-700 font-medium mb-2">Tercatat pada: ${todayRecord.timeOut}</p><img src="${todayRecord.signatureOut}" alt="TTD Sore" class="h-16 mx-auto bg-white border rounded p-1" /></div>` : `<button onclick="${!isAbsenPagiDone ? '' : `openSignatureModal('sore')`}" class="w-full font-semibold py-3 rounded-lg transition flex items-center justify-center ${!isAbsenPagiDone ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md'}"><i data-lucide="pen-tool" class="mr-2 w-4 h-4"></i> ${!isAbsenPagiDone ? 'Absen Pagi Terlebih Dahulu' : 'Lakukan Absen Sore'}</button>`}
+                        ${isAbsenSoreDone ? `<div class="text-center py-4"><p class="text-green-700 font-medium mb-2">Tercatat pada: ${todayRecord.timeOut}</p><img src="${todayRecord.signatureOut}" alt="TTD Sore" class="h-16 mx-auto bg-white border rounded p-1" /></div>` : `<button type="button" onclick="${!isAbsenPagiDone ? '' : `openSignatureModal('sore')`}" class="w-full font-semibold py-3 rounded-lg transition flex items-center justify-center ${!isAbsenPagiDone ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md'}"><i data-lucide="pen-tool" class="mr-2 w-4 h-4"></i> ${!isAbsenPagiDone ? 'Absen Pagi Terlebih Dahulu' : 'Lakukan Absen Sore'}</button>`}
                     </div>
                 </div>
 
@@ -438,23 +520,22 @@
         }
 
         function handleDeleteGuru(id) {
-            if(window.confirm('Yakin ingin menghapus data pengguna ini?')) {
+            if (window.confirm('Yakin ingin menghapus data pengguna ini?')) {
                 AppState.users = AppState.users.filter(u => String(u.id) !== String(id));
                 sendToSheet({ action: 'deleteUser', id: id }); render();
             }
         }
 
-        // FITUR EDIT PENGGUNA BARU (Termasuk Admin)
         function openEditUserModal(id) {
             const user = AppState.users.find(u => String(u.id) === String(id));
-            if(!user) return;
+            if (!user) return;
             const container = document.getElementById('password-modal-container');
             container.innerHTML = `
                 <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
                     <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
                         <div class="bg-blue-600 px-6 py-4 flex justify-between items-center text-white">
                             <h3 class="text-lg font-bold flex items-center"><i data-lucide="edit" class="w-5 h-5 mr-2"></i> Edit Pengguna</h3>
-                            <button onclick="closeChangePasswordModal()" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button>
+                            <button type="button" onclick="closeChangePasswordModal()" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button>
                         </div>
                         <div class="p-6">
                             <form onsubmit="saveEditUser(event, '${id}')" class="space-y-4">
@@ -475,8 +556,8 @@
         function saveEditUser(e, id) {
             e.preventDefault();
             const userIndex = AppState.users.findIndex(u => String(u.id) === String(id));
-            if(userIndex === -1) return;
-            
+            if (userIndex === -1) return;
+
             AppState.users[userIndex].nama = document.getElementById('eu-nama').value;
             AppState.users[userIndex].nip = document.getElementById('eu-nip').value;
             AppState.users[userIndex].jabatan = document.getElementById('eu-jabatan').value;
@@ -497,8 +578,8 @@
                     <td class="px-6 py-4">${u.nip}</td>
                     <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">${u.jabatan}</span></td>
                     <td class="px-6 py-4 text-center flex justify-center space-x-2">
-                        <button onclick="openEditUserModal('${u.id}')" class="text-blue-600 hover:bg-blue-100 p-1 bg-blue-50 rounded" title="Edit Pengguna"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                        ${u.id !== AppState.currentUser.id ? `<button onclick="handleDeleteGuru('${u.id}')" class="text-red-500 hover:bg-red-100 p-1 bg-red-50 rounded" title="Hapus Pengguna"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                        <button type="button" onclick="openEditUserModal('${u.id}')" class="text-blue-600 hover:bg-blue-100 p-1 bg-blue-50 rounded" title="Edit Pengguna"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                        ${u.id !== AppState.currentUser.id ? `<button type="button" onclick="handleDeleteGuru('${u.id}')" class="text-red-500 hover:bg-red-100 p-1 bg-red-50 rounded" title="Hapus Pengguna"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                     </td>
                 </tr>`;
             });
@@ -507,7 +588,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-xl shadow-sm border border-gray-100 gap-4">
                     <div><h2 class="text-2xl font-bold text-gray-800">Manajemen Pengguna</h2><p class="text-gray-500 text-sm">Kelola data Admin & Guru</p></div>
                     <div class="flex space-x-2 w-full sm:w-auto">
-                        <button onclick="toggleForm('add')" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"><i data-lucide="user-plus" class="w-4 h-4"></i> <span>Tambah Manual</span></button>
+                        <button type="button" onclick="toggleForm('add')" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"><i data-lucide="user-plus" class="w-4 h-4"></i> <span>Tambah Manual</span></button>
                     </div>
                 </div>
                 <div id="form-add-guru" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hidden">
@@ -530,16 +611,15 @@
         // ==========================================
         // KOMPONEN: ADMIN LAPORAN
         // ==========================================
-        function updateLaporanDate(e) { 
+        function updateLaporanDate(e) {
             if (!e.target.value) {
-                AppState.selectedReportDate = getSchoolDateString(); 
+                AppState.selectedReportDate = getSchoolDateString();
             } else {
-                AppState.selectedReportDate = e.target.value; 
+                AppState.selectedReportDate = e.target.value;
             }
-            render(); 
+            render();
         }
 
-        // FUNGSI BARU: Update Filter Laporan
         function updateLaporanFilter(e) {
             AppState.reportFilter = e.target.value;
             render();
@@ -549,10 +629,10 @@
             if (!dateStr || dateStr.includes('NaN')) return '-';
             const parts = dateStr.split('-');
             if (parts.length !== 3) return '-';
-            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0); 
+            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0);
             if (isNaN(dateObj.getTime())) return '-';
             const options = { day: '2-digit', month: 'long', year: 'numeric' };
-            if(includeWeekday) options.weekday = 'long';
+            if (includeWeekday) options.weekday = 'long';
             return dateObj.toLocaleDateString('id-ID', options);
         }
 
@@ -560,14 +640,14 @@
             if (!dateStr || dateStr.includes('NaN')) return [];
             const parts = dateStr.split('-');
             if (parts.length !== 3) return [];
-            const curr = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0); 
+            const curr = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0);
             if (isNaN(curr.getTime())) return [];
 
-            const day = curr.getDay(); 
-            const diff = curr.getDate() - day + (day === 0 ? -6 : 1); 
-            
+            const day = curr.getDay();
+            const diff = curr.getDate() - day + (day === 0 ? -6 : 1);
+
             const dates = [];
-            for(let i=0; i<5; i++) {
+            for (let i = 0; i < 5; i++) {
                 const workDay = new Date(curr.getFullYear(), curr.getMonth(), diff + i, 12, 0, 0);
                 const wy = workDay.getFullYear();
                 const wm = String(workDay.getMonth() + 1).padStart(2, '0');
@@ -577,20 +657,88 @@
             return dates;
         }
 
+        function saveHoliday() {
+            const date = document.getElementById('holiday-date').value;
+            const note = document.getElementById('holiday-note').value;
+
+            if (!date) {
+                alert('Silakan pilih tanggal terlebih dahulu!');
+                return;
+            }
+
+            const newRecord = {
+                id: Date.now().toString(),
+                userId: 'GLOBAL_NOTE',
+                date: date,
+                timeIn: note,
+                signatureIn: '',
+                timeOut: '',
+                signatureOut: ''
+            };
+
+            AppState.attendanceData.push(newRecord);
+            sendToSheet({ action: 'absenPagi', data: newRecord });
+
+            // Auto-shift tanggal laporan ke minggu tersebut agar user langsung bisa melihat hasilnya
+            AppState.selectedReportDate = date;
+
+            alert('Keterangan absensi berhasil disimpan!');
+            render();
+        }
+
+        function saveManualAttendance() {
+            const guruId = document.getElementById('manual-guru').value;
+            const date = document.getElementById('manual-date').value;
+            const timeIn = document.getElementById('manual-timein').value;
+            const timeOut = document.getElementById('manual-timeout').value;
+
+            if (!guruId || !date || !timeIn) {
+                alert('Pilih Guru, Tanggal, dan Jam Masuk wajib diisi!');
+                return;
+            }
+
+            const existing = AppState.attendanceData.find(a => String(a.userId) === String(guruId) && String(a.date) === String(date));
+            if (existing) {
+                alert('Data absensi untuk guru ini di tanggal tersebut sudah ada! Jika ingin mengedit jam, silakan buka dan edit file Google Sheets secara langsung.');
+                return;
+            }
+
+            const newRecord = {
+                id: Date.now().toString(),
+                userId: guruId,
+                date: date,
+                timeIn: timeIn,
+                signatureIn: '',
+                timeOut: timeOut || '',
+                signatureOut: ''
+            };
+
+            AppState.attendanceData.push(newRecord);
+            sendToSheet({ action: 'absenPagi', data: newRecord });
+
+            if (timeOut) {
+                setTimeout(() => {
+                    sendToSheet({ action: 'absenSore', data: { id: newRecord.id, timeOut: timeOut, signatureOut: '' } });
+                }, 1500);
+            }
+
+            // Auto-shift tanggal laporan ke minggu tersebut agar user langsung bisa melihat hasilnya
+            AppState.selectedReportDate = date;
+
+            alert('Absensi manual berhasil ditambahkan!');
+            render();
+        }
+
         function renderAdminLaporan() {
             const dates = getWorkdaysOfWeek(AppState.selectedReportDate);
             const periodStr = dates.length > 0 ? `${formatDateID(dates[0])} - ${formatDateID(dates[4])}` : 'Format Tanggal Salah';
-            
-            // Logika Filter ASN & Non-ASN
+
             const guruList = AppState.users
                 .filter(u => u.role === 'guru')
                 .filter(u => {
                     if (AppState.reportFilter === 'Semua') return true;
-                    
-                    // Asumsi: ASN memiliki NIP yang panjang angkanya >= 18 digit
                     const nipDigitsOnly = u.nip ? u.nip.replace(/\\D/g, '') : '';
                     const isASN = nipDigitsOnly.length >= 18;
-                    
                     if (AppState.reportFilter === 'ASN') return isASN;
                     if (AppState.reportFilter === 'NON_ASN') return !isASN;
                     return true;
@@ -598,11 +746,11 @@
                 .sort((a, b) => Number(a.id) - Number(b.id));
 
             let lastDayStr = '-';
-            if(AppState.selectedReportDate && !AppState.selectedReportDate.includes('NaN')){
+            if (AppState.selectedReportDate && !AppState.selectedReportDate.includes('NaN')) {
                 const dateParts = AppState.selectedReportDate.split('-');
-                if(dateParts.length === 3) {
+                if (dateParts.length === 3) {
                     const lastDayOfMonth = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]), 0, 12, 0, 0);
-                    lastDayStr = formatDateID(`${lastDayOfMonth.getFullYear()}-${String(lastDayOfMonth.getMonth()+1).padStart(2,'0')}-${String(lastDayOfMonth.getDate()).padStart(2,'0')}`);
+                    lastDayStr = formatDateID(`${lastDayOfMonth.getFullYear()}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}`);
                 }
             }
 
@@ -651,8 +799,8 @@
                             </select>
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="window.print()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-blue-800 hover:bg-blue-900 transition text-white px-5 py-2 rounded-lg"><i data-lucide="printer" class="w-5 h-5"></i> <span>Cetak / PDF</span></button>
-                            <button onclick="exportToExcel()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 transition text-white px-5 py-2 rounded-lg"><i data-lucide="sheet" class="w-5 h-5"></i> <span>Export Excel</span></button>
+                            <button type="button" onclick="window.print()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-blue-800 hover:bg-blue-900 transition text-white px-5 py-2 rounded-lg"><i data-lucide="printer" class="w-5 h-5"></i> <span>Cetak / PDF</span></button>
+                            <button type="button" onclick="exportToExcel()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 transition text-white px-5 py-2 rounded-lg"><i data-lucide="sheet" class="w-5 h-5"></i> <span>Export Excel</span></button>
                         </div>
                     </div>
 
@@ -661,7 +809,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div class="bg-gray-50 p-3 rounded border">
                                 <label class="block text-xs font-semibold mb-1">Tetapkan Keterangan / Hari Libur (Per Tanggal)</label>
-                                <div class="flex gap-2"><input type="date" id="holiday-date" class="border p-1 text-sm rounded w-32 outline-none"><input type="text" id="holiday-note" placeholder="Misal: Libur Idul Fitri" class="border p-1 text-sm rounded flex-1 outline-none"><button onclick="saveHoliday()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition font-bold">Simpan</button></div>
+                                <div class="flex gap-2"><input type="date" id="holiday-date" class="border p-1 text-sm rounded w-32 outline-none"><input type="text" id="holiday-note" placeholder="Misal: Libur Idul Fitri" class="border p-1 text-sm rounded flex-1 outline-none"><button type="button" onclick="saveHoliday()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition font-bold">Simpan</button></div>
                                 <p class="text-[10px] text-gray-500 mt-1">*Jika ingin menghapus keterangan, kosongkan tulisan lalu klik simpan.</p>
                             </div>
                             
@@ -673,13 +821,15 @@
                             <div class="bg-gray-50 p-3 rounded border lg:col-span-2">
                                 <label class="block text-xs font-semibold mb-2">Input Absensi Manual (Jika Guru Lupa Absen)</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end">
-                                    <div class="sm:col-span-1"><label class="block text-[10px] text-gray-600 mb-1">Pilih Guru</label><select id="manual-guru" class="border p-1 w-full text-sm rounded outline-none"><option value="">-- Pilih Guru --</option>${AppState.users.filter(u=>u.role==='guru').map(g => `<option value="${g.id}">${g.nama}</option>`).join('')}</select></div>
+                                    <div class="sm:col-span-1"><label class="block text-[10px] text-gray-600 mb-1">Pilih Guru</label><select id="manual-guru" class="border p-1 w-full text-sm rounded outline-none"><option value="">-- Pilih Guru --</option>${AppState.users.filter(u => u.role === 'guru').map(g => `<option value="${g.id}">${g.nama}</option>`).join('')}</select></div>
                                     <div class="sm:col-span-1"><label class="block text-[10px] text-gray-600 mb-1">Tanggal</label><input type="date" id="manual-date" value="${getLocalYYYYMMDD()}" class="border p-1 w-full text-sm rounded outline-none"></div>
                                     <div class="sm:col-span-1"><label class="block text-[10px] text-gray-600 mb-1">Jam Masuk</label><input type="time" id="manual-timein" class="border p-1 w-full text-sm rounded outline-none"></div>
                                     <div class="sm:col-span-1"><label class="block text-[10px] text-gray-600 mb-1">Jam Pulang (Opsional)</label><input type="time" id="manual-timeout" class="border p-1 w-full text-sm rounded outline-none"></div>
-                                    <div class="sm:col-span-1"><button onclick="saveManualAttendance()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-bold">Simpan</button></div>
+                                    <div class="sm:col-span-1"><button type="button" onclick="saveManualAttendance()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition font-bold">Simpan</button></div>
                                 </div>
+                                <p class="text-[10px] text-gray-500 mt-1">*Fitur ini untuk menambahkan absen baru. Jika data absensi sudah ada namun salah jam, harap edit langsung melalui Google Sheets.</p>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -731,7 +881,7 @@
                     <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
                         <div class="bg-blue-600 px-6 py-4 flex justify-between items-center text-white">
                             <h3 class="text-lg font-bold flex items-center"><i data-lucide="key" class="w-5 h-5 mr-2"></i> Ganti Password</h3>
-                            <button onclick="closeChangePasswordModal()" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button>
+                            <button type="button" onclick="closeChangePasswordModal()" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button>
                         </div>
                         <div class="p-6">
                             <form onsubmit="saveNewPassword(event)" class="space-y-4">
@@ -757,7 +907,7 @@
 
             AppState.currentUser.password = newP;
             const idx = AppState.users.findIndex(u => String(u.id) === String(AppState.currentUser.id));
-            if(idx !== -1) AppState.users[idx].password = newP;
+            if (idx !== -1) AppState.users[idx].password = newP;
 
             sendToSheet({ action: 'changePassword', id: AppState.currentUser.id, newPassword: newP });
             alert('Password berhasil diubah!'); closeChangePasswordModal();
@@ -770,13 +920,13 @@
             container.innerHTML = `
                 <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
                     <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden">
-                        <div class="bg-blue-600 px-6 py-4 flex justify-between items-center text-white"><h3 class="text-lg font-bold">Tanda Tangan Absen ${type === 'pagi' ? 'Datang' : 'Pulang'}</h3><button onclick="document.getElementById('modal-container').innerHTML=''" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button></div>
+                        <div class="bg-blue-600 px-6 py-4 flex justify-between items-center text-white"><h3 class="text-lg font-bold">Tanda Tangan Absen ${type === 'pagi' ? 'Datang' : 'Pulang'}</h3><button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="hover:text-gray-200"><i data-lucide="x-circle"></i></button></div>
                         <div class="p-6">
                             <p class="text-sm text-gray-600 mb-4 text-center">Silakan gambar paraf Anda di bawah ini.</p>
                             <div class="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex justify-center items-center touch-none">
                                 <canvas id="signatureCanvas" width="400" height="200" class="w-full max-w-[400px] h-[200px] bg-white rounded cursor-crosshair"></canvas>
                             </div>
-                            <div class="flex space-x-3 mt-6"><button onclick="clearCanvas()" class="flex-1 px-4 py-2 border rounded hover:bg-gray-100 font-medium">Ulangi</button><button onclick="saveSignature()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"><i data-lucide="check-circle" class="mr-2 inline w-4 h-4"></i> Simpan & Absen</button></div>
+                            <div class="flex space-x-3 mt-6"><button type="button" onclick="clearCanvas()" class="flex-1 px-4 py-2 border rounded hover:bg-gray-100 font-medium">Ulangi</button><button type="button" onclick="saveSignature()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"><i data-lucide="check-circle" class="mr-2 inline w-4 h-4"></i> Simpan & Absen</button></div>
                         </div>
                     </div>
                 </div>`;
@@ -793,24 +943,24 @@
             const end = () => { if (isDrawing) { ctx.closePath(); isDrawing = false; } };
 
             canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-            canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
+            canvas.addEventListener('touchstart', start, { passive: false }); canvas.addEventListener('touchmove', move, { passive: false }); canvas.addEventListener('touchend', end);
         }
 
         function clearCanvas() { const canvas = document.getElementById('signatureCanvas'); const ctx = canvas.getContext('2d'); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); canvasIsEmpty = true; }
 
         function saveSignature() {
             if (canvasIsEmpty) { alert('Mohon bubuhkan tanda tangan Anda terlebih dahulu!'); return; }
-            const dataUrl = document.getElementById('signatureCanvas').toDataURL('image/jpeg', 0.5); 
+            const dataUrl = document.getElementById('signatureCanvas').toDataURL('image/jpeg', 0.5);
             const user = AppState.currentUser, timeNow = getSchoolTimeString(), todayStr = getSchoolDateString();
-            
+
             if (AppState.modalAbsenType === 'pagi') {
                 const newRecord = { id: Date.now().toString(), userId: user.id, date: todayStr, timeIn: timeNow, signatureIn: dataUrl, timeOut: '', signatureOut: '' };
                 AppState.attendanceData.push(newRecord); sendToSheet({ action: 'absenPagi', data: newRecord });
             } else if (AppState.modalAbsenType === 'sore') {
                 const todayRecord = AppState.attendanceData.find(a => String(a.userId) === String(user.id) && a.date === todayStr);
-                if(todayRecord) { todayRecord.timeOut = timeNow; todayRecord.signatureOut = dataUrl; sendToSheet({ action: 'absenSore', data: { id: todayRecord.id, timeOut: timeNow, signatureOut: dataUrl } }); }
+                if (todayRecord) { todayRecord.timeOut = timeNow; todayRecord.signatureOut = dataUrl; sendToSheet({ action: 'absenSore', data: { id: todayRecord.id, timeOut: timeNow, signatureOut: dataUrl } }); }
             }
-            document.getElementById('modal-container').innerHTML = ''; render(); 
+            document.getElementById('modal-container').innerHTML = ''; render();
         }
 
         // --- REALTIME CLOCK UPDATER ---
@@ -821,16 +971,17 @@
                 const optionsTime = { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', second: '2-digit' };
                 const dateStr = now.toLocaleDateString('id-ID', optionsDate);
                 const timeStr = now.toLocaleTimeString('id-ID', optionsTime).replace(/\./g, ':');
-                
+
                 const lgDate = document.getElementById('rt-date-login'), lgTime = document.getElementById('rt-time-login');
-                if(lgDate) lgDate.innerText = dateStr; if(lgTime) lgTime.innerText = timeStr;
+                if (lgDate) lgDate.innerText = dateStr; if (lgTime) lgTime.innerText = timeStr;
 
                 const grDate = document.getElementById('rt-date-guru'), grTime = document.getElementById('rt-time-guru');
-                if(grDate) grDate.innerText = dateStr; if(grTime) grTime.innerText = timeStr;
+                if (grDate) grDate.innerText = dateStr; if (grTime) grTime.innerText = timeStr;
             }, 1000);
         }
 
         initApp();
     </script>
 </body>
+
 </html>
